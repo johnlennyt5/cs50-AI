@@ -91,15 +91,32 @@ class CrosswordCreator():
         """
         self.enforce_node_consistency()
         self.ac3()
-        return self.backtrack(dict())
-
+        if not interleaving:
+            print('solving Crossword with single arc consistency')
+            return self.backtrack(dict())
+        else:
+            print('solving Crossword with multiple arc consistency')
+            return self.backtrack_ac3(dict())
+        
     def enforce_node_consistency(self):
         """
         Update `self.domains` such that each variable is node-consistent.
         (Remove any values that are inconsistent with a variable's unary
          constraints; in this case, the length of the word.)
         """
-        raise NotImplementedError
+        #iterate through all variables in the crossword
+        for var in self.domains:
+            var_len = var.length
+            to_remove = set()
+
+            #iterate through all values in variable domain
+            for val in self.domains[var]:
+                #if value is not consistent with variable length, remove it
+                if len(val) != var_len:
+                    to_remove.add(val)
+
+            #remove all invalid vals from variable domain
+            self.domains[var] = self.domains[var] - to_remove
 
     def revise(self, x, y):
         """
