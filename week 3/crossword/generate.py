@@ -89,8 +89,13 @@ class CrosswordCreator():
         """
         Enforce node and arc consistency, and then solve the CSP.
         """
+        # Step 1: Enforce node consistency
         self.enforce_node_consistency()
+
+        # Step 2: Enforce arc consistency
         self.ac3()
+
+        # Step 3: Begin backtracking search with an empty assignment
         return self.backtrack(dict())
 
     def enforce_node_consistency(self):
@@ -99,9 +104,13 @@ class CrosswordCreator():
         (Remove any values that are inconsistent with a variable's unary
          constraints; in this case, the length of the word.)
         """
+        # Iterate over each variable in the crossword
         for var in self.crossword.variables:
             new_domain = set()
+
+            # Check each word in the domain of the variable
             for word in self.domains[var]:
+                # Remove words that do not satisfy unary constraints (length)
                 if len(word) == var.length:
                     new_domain.add(word)
             self.domains[var] = new_domain
@@ -115,17 +124,31 @@ class CrosswordCreator():
         Return True if a revision was made to the domain of `x`; return
         False if no revision was made.
         """
+         # Initialize the variable to track whether a revision was made
         revised = False
+
+        # Get the overlap indices between variables x and y
         overlap = self.crossword.overlaps[x, y]
         if overlap:
             i, j = overlap
+
+            # Initialize a new set to store the updated domain of variable x
             new_domain = set()
+
+            # Iterate over each word in the domain of variable x
             for val_x in self.domains[x]:
+                # Check if there is any word in the domain of variable y that satisfies the overlap condition
                 if any(val_x[i] == val_y[j] for val_y in self.domains[y]):
+                    # If a satisfying word is found, add it to the new domain
                     new_domain.add(val_x)
                 else:
+                    # If no satisfying word is found, set revised to True
                     revised = True
+
+            # Update the domain of variable x with the new_domain
             self.domains[x] = new_domain
+
+        # Return whether a revision was made
         return revised
 
     def ac3(self, arcs=None):
@@ -137,14 +160,18 @@ class CrosswordCreator():
         Return True if arc consistency is enforced and no domains are empty;
         return False if one or more domains end up empty.
         """
+        # If arcs is not provided, initialize it with all possible arcs in the problem
         if arcs is None:
             arcs = [(var1, var2) for var1 in self.crossword.variables for var2 in self.crossword.neighbors(var1)]
 
         while arcs:
             x, y = arcs.pop(0)
+            # Revise the domains of x and y based on arc consistency
             if self.revise(x, y):
+                # If the domain of x becomes empty, the assignment is inconsistent
                 if not self.domains[x]:
                     return False
+                # Add new arcs for variables connected to x and not equal to y
                 arcs.extend([(x, z) for z in self.crossword.neighbors(x) if z != y])
         return True
 
@@ -153,6 +180,7 @@ class CrosswordCreator():
         Return True if `assignment` is complete (i.e., assigns a value to each
         crossword variable); return False otherwise.
         """
+        # Check if each variable in the crossword has been assigned a value
         return all(var in assignment for var in self.crossword.variables)
 
     def consistent(self, assignment):
@@ -162,9 +190,11 @@ class CrosswordCreator():
         """
         words_set = set()
         for var, word in assignment.items():
+            # Check for conflicts: repeated words or incorrect word lengths
             if word in words_set or len(word) != var.length:
                 return False
             words_set.add(word)
+            # Check for conflicts with neighbors
             for neighbor in self.crossword.neighbors(var):
                 if neighbor in assignment:
                     i, j = self.crossword.overlaps[var, neighbor]
@@ -186,6 +216,7 @@ class CrosswordCreator():
                 i, j = self.crossword.overlaps[var, neighbor]
                 for word in self.domains[var]:
                     for val_neighbor in self.domains[neighbor]:
+                        # Check for conflicts with neighbors and increment ruled-out counts
                         if word[i] != val_neighbor[j]:
                             ruled_out_counts[word] += 1
 
@@ -222,13 +253,14 @@ class CrosswordCreator():
         for value in self.order_domain_values(var, assignment):
             new_assignment = assignment.copy()
             new_assignment[var] = value
+            # Check if the new assignment is consistent
             if self.consistent(new_assignment):
+                # Recursively attempt to complete the assignment
                 result = self.backtrack(new_assignment)
                 if result:
                     return result
 
         return None
-
 
 def main():
 
