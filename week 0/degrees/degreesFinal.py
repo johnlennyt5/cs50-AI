@@ -91,7 +91,7 @@ def shortest_path(source, target):
 
     If no possible path, returns None.
     """
-    # Keep track of number of states explored
+    # Keep track of the number of states explored 
     num_explored = 0
 
     # Initialize frontier to just the starting position
@@ -102,35 +102,36 @@ def shortest_path(source, target):
     # Initialize an empty explored set
     explored = set()
 
-    # Keep looping until solution found
+    # Keep looping until a solution is found
     while True:
-
-        # If nothing left in frontier, then no path
+        # If nothing left in the frontier, then no path 
         if frontier.empty():
             raise Exception("no solution")
 
         # Choose a node from the frontier
         node = frontier.remove()
-        num_explored += 1
-        
-        # Mark node as explored
+        num_explored += 1    
+
+        # Mark the node as explored
         explored.add(node.state)
 
-        # Add neighbors to frontier
+        # Add neighbors to the frontier
         for movie_id, person_id in neighbors_for_person(node.state):
             if not frontier.contains_state(person_id) and person_id not in explored:
                 child = Node(state=person_id, parent=node, action=movie_id)
                 
-        # If node is the goal, then we have a solution
-            if child.state == target:
-                solution = []
-                while child.parent is not None:
-                    solution.append((child.action, child.state))
-                    child = child.parent
-                solution.reverse()
-                return solution
-            frontier.add(child)
-                
+                # If the node is the goal, then we have a solution
+                if child.state == target:
+                    solution = []
+                    while child.parent is not None:
+                        solution.append((child.action, child.state))
+                        child = child.parent
+                    solution.reverse()
+                    return solution    
+          
+                frontier.add(child)
+
+
 def person_id_for_name(name):
     """
     Returns the IMDB id for a person's name,

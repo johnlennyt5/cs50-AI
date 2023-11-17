@@ -23,163 +23,117 @@ def player(board):
     """
     Returns player who has the next turn on a board.
     """
+    # Count the number of X and O on the board to determine the current player
+    count_X = sum(row.count(X) for row in board)
+    count_O = sum(row.count(O) for row in board)
 
-    countX = 0
-    countO = 0
+    return O if count_X > count_O else X
 
-    for row in range(len(board)):
-        for col in range(len(board[row])):
-            if board [row][col] == X:
-                countX += 1
-            if   board[row][col] == O:
-                countO +=1 
-
-    if countX > countO:
-        return O            
-    else:
-        return X
 
 def actions(board):
     """
     Returns set of all possible actions (i, j) available on the board.
     """
-
-    allPossibleActions = set()
-
-    for row in range(len(board)):
-        for col in range(len(board[0])):
-            if board[row][col] == EMPTY:
-                allPossibleActions.add((row,col))
-
-    return allPossibleActions            
+    # Generate a set of all empty cells as possible actions
+    return {(row, col) for row in range(3) for col in range(3) if board[row][col] == EMPTY}
 
 
 def result(board, action):
     """
     Returns the board that results from making move (i, j) on the board.
     """
-    
+    # Ensure the action is valid, then create a copy of the board with the move applied
     if action not in actions(board):
-        raise Exception("Not a vaild action")
-    
+        raise ValueError("Invalid action")
+
     row, col = action
-    board_copy = copy.deepcopy(board)
+    board_copy = [row[:] for row in board]
     board_copy[row][col] = player(board)
     return board_copy
 
-def checkRow(board, player):
-    for row in range(len(board)):
-        if board[row][0] == player and board[row][1] == player and board[row][2] == player:
-            return True
-    return False   
+# Define functions to check for a winner in rows, columns, and diagonals
+def check_line(line, player):
+    return all(cell == player for cell in line)
 
-def checkCol(board, player): 
-    for col in range(len(board)):
-        if board[col][0] == player and board[1][col] == player and board[2][col] == player:
-            return True
-    return False    
-
-def checkFirstDiag(board,player):
-    count =0
-    for row in range(len(board)):
-        for col in range(len(board[row])):
-            if row ==col and board[row][col] == player:
-                count += 1
-    if count == 3:
-        return True
-    else:
-        return False
-    
-def checkSecondDiag(board,player):
-    count = 0
-    for row in range(len(board)):
-        for col in range(len(board[row])):
-            if (len(board) - row - 1) == col and board[row][col] == player:
-                count += 1
-    if count == 3:
-        return True
-    else:
-        return False            
-            
 def winner(board):
     """
     Returns the winner of the game, if there is one.
     """
-    
-    if checkRow(board, X) or checkCol(board, X) or checkFirstDiag(board, X) or checkSecondDiag(board, X):
-       return X 
-    elif checkRow(board, O) or checkCol(board, O) or checkFirstDiag(board, O) or checkSecondDiag(board, O):
+    # Check rows and columns for a winner
+    for row in board:
+        if check_line(row, X):
+            return X
+        elif check_line(row, O):
+            return O
+
+    for col in range(3):
+        if check_line([board[row][col] for row in range(3)], X):
+            return X
+        elif check_line([board[row][col] for row in range(3)], O):
+            return O
+
+    # Check diagonals for a winner
+    if check_line([board[i][i] for i in range(3)], X) or check_line([board[i][2 - i] for i in range(3)], X):
+        return X
+    elif check_line([board[i][i] for i in range(3)], O) or check_line([board[i][2 - i] for i in range(3)], O):
         return O
-    else:
-        return None
+
+    return None
+
 
 def terminal(board):
     """
     Returns True if game is over, False otherwise.
     """
+    # The game is over if there is a winner or the board is full
+    return winner(board) or all(all(cell != EMPTY for cell in row) for row in board)
 
-    if winner(board) == X:
-        return True
-    if winner(board) == O:
-        return True
-    for row in range(len(board)):
-        for col in range(len(board[row])):
-            if board[row][col] == EMPTY:
-                return False
-    return True                  
 
 def utility(board):
     """
     Returns 1 if X has won the game, -1 if O has won, 0 otherwise.
     """
-
-    if winner(board) == X:
+    # Determine the winner and return the corresponding utility value
+    result = winner(board)
+    if result == X:
         return 1
-    elif winner(board) == O:
+    elif result == O:
         return -1
     else:
         return 0
     
+# Simplify the implementation of max_value and min_value functions
+
 def max_value(board):
-    v = -math.inf    
+    # If the board is in a terminal state, return the utility value
     if terminal(board):
         return utility(board)
-    for action in actions(board):
-        v = max(v, min_value(result(board, action)))
-    return v    
+    
+    # Find the maximum utility value by evaluating each possible action
+    return max(min_value(result(board, action)) for action in actions(board))
 
 def min_value(board):
-    v = math.inf
+    # If the board is in a terminal state, return the utility value
     if terminal(board):
         return utility(board)
-    for action in actions(board):
-        v = min(v, max_value(result(board,action)))
-    return v
+    
+    # Find the minimum utility value by evaluating each possible action
+    return min(max_value(result(board, action)) for action in actions(board))
 
 def minimax(board):
     """
     Returns the optimal action for the current player on the board.
     """
-   
+    # If the board is in a terminal state, return None as no action is possible
     if terminal(board):
         return None
-    
-    # case of player is X (max-player):
-    elif player(board) == X:
-        plays=[]
-        # Loop over the possible acions
-        for action in actions(board):
-            # add in plays a tupple with the min_value and the action that result to its value
-            plays.append([min_value(result(board,action))], action)
-        # reverse sort for the plays list and get the action  that should be take
-        return sorted(plays, key=lambda x:x[0], reverse=True )[0][1]
-    
-    # case of player 0 (min-player)
-    elif player(board) == O:
-        plays=[]
-        # Loop over the possible acions
-        for action in actions(board):
-            # add in plays a tupple with the max_value and the action that result to its value
-            plays.append([max_value(result(board,action))], action)
-        # reverse sort for the plays list and get the action  that should be take
-        return sorted(plays, key=lambda x:x[0])[0][1]
+
+    # Determine the current player
+    current_player = player(board)
+
+    # If the current player is X, find the action that maximizes the utility value
+    if current_player == X:
+        return max(actions(board), key=lambda action: min_value(result(board, action)))
+    # If the current player is O, find the action that minimizes the utility value
+    else:
+        return min(actions(board), key=lambda action: max_value(result(board, action)))
