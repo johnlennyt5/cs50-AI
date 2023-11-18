@@ -104,7 +104,12 @@ def train_model(evidence, labels):
     Given a list of evidence lists and a list of labels, return a
     fitted k-nearest neighbor model (k=1) trained on the data.
     """
-    raise NotImplementedError
+    # sklearn's K-Nearest Neighbor Classifier
+    # considering 1 neighbor and then, training (fit-ing)
+    neigh = KNeighborsClassifier(n_neighbors=1)
+    neigh.fit(evidence, labels)
+
+    return neigh
 
 
 def evaluate(labels, predictions):
