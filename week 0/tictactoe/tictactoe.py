@@ -47,7 +47,7 @@ def result(board, action):
         raise ValueError("Invalid action")
 
     row, col = action
-    board_copy = [row[:] for row in board]
+    board_copy = copy.deepcopy(board)
     board_copy[row][col] = player(board)
     return board_copy
 
