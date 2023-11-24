@@ -45,8 +45,19 @@ def get_mask_token_index(mask_token_id, inputs):
     Return the index of the token with the specified `mask_token_id`, or
     `None` if not present in the `inputs`.
     """
-    # TODO: Implement this function
-    raise NotImplementedError
+    
+    # Get the flattened token IDs from the input tensor
+    flat_input_ids = tf.reshape(inputs["input_ids"], [-1])
+
+    # Find the index of the mask token
+    mask_token_index = tf.where(flat_input_ids == mask_token_id)
+
+    if tf.size(mask_token_index) == 0:
+        return None
+    else:
+        return mask_token_index[0].numpy().item()
+
+
 
 
 
@@ -55,9 +66,10 @@ def get_color_for_attention_score(attention_score):
     Return a tuple of three integers representing a shade of gray for the
     given `attention_score`. Each value should be in the range [0, 255].
     """
-    # TODO: Implement this function
-    raise NotImplementedError
-
+    
+    # Map attention score to a grayscale value
+    gray_value = int(attention_score * 255)
+    return (gray_value, gray_value, gray_value)
 
 
 def visualize_attentions(tokens, attentions):
