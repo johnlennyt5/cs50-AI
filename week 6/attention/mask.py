@@ -82,13 +82,12 @@ def visualize_attentions(tokens, attentions):
     include both the layer number (starting count from 1) and head number
     (starting count from 1).
     """
-    # TODO: Update this function to produce diagrams for all layers and heads.
-    generate_diagram(
-        1,
-        1,
-        tokens,
-        attentions[0][0][0]
-    )
+   
+      # Iterate through attention layers and heads
+    for layer_num, layer_attentions in enumerate(attentions):
+        for head_num, head_attention in enumerate(layer_attentions[0]):
+            generate_diagram(layer_num + 1, head_num + 1, tokens, head_attention)
+
 
 
 def generate_diagram(layer_number, head_number, tokens, attention_weights):
