@@ -83,7 +83,18 @@ def np_chunk(tree):
     whose label is "NP" that does not itself contain any other
     noun phrases as subtrees.
     """
-    raise NotImplementedError
+    NPsubtrees = []
+    for subtree in tree.subtrees():
+        #Get all of the noun phrases chunks
+        if subtree.label() == "NP":
+            for sub in subtree.subtrees():
+                #Check that it does NOT contain anoter noun phrase chunk
+                if sub.label() == "NP":
+                    break
+            NPsubtrees.append(subtree)
+    
+    return NPsubtrees
+
 
 
 if __name__ == "__main__":
