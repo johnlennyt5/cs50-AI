@@ -6,11 +6,11 @@ import tensorflow as tf
 
 from sklearn.model_selection import train_test_split
 
-EPOCHS = 10
+EPOCHS = 20
 IMG_WIDTH = 30
 IMG_HEIGHT = 30
 NUM_CATEGORIES = 43
-TEST_SIZE = 0.4
+TEST_SIZE = 0.1
 
 
 def main():
@@ -63,19 +63,19 @@ def load_data(data_dir):
 
     for category in range(NUM_CATEGORIES):
         #example gtsrb/0
-        category_folder = os.path.join(data_dir, str(0))
+        category_folder = os.path.join(data_dir, str(category))
 
         #check if folder exists
-        if os.path.isdir(category_folder):
-            for filename in os.listdir(category_folder):
-                #example gtsrb/0/00000_00000.ppm
-                image_path = os.path.join(category_folder, filename)
-                image = cv2.imread(image_path)
-                image = cv2.resize(image, (IMG_WIDTH, IMG_HEIGHT))
-                images.append(image)
-                labels.append(category)
+        # if os.path.isdir(category_folder):
+        for filename in os.listdir(category_folder):
+            #example gtsrb/0/00000_00000.ppm
+            image_path = os.path.join(category_folder, filename)
+            image = cv2.imread(image_path)
+            image = cv2.resize(image, (IMG_WIDTH, IMG_HEIGHT))
+            images.append(image)
+            labels.append(category)
 
-    return images, labels
+    return images, np.array(labels)
 
 def get_model():
     """
@@ -89,6 +89,20 @@ def get_model():
         # Convolutional layer. Learn 32 filters using a 3x3 kernel
         tf.keras.layers.Conv2D( 
             32, (3, 3), activation="relu", input_shape=(IMG_WIDTH, IMG_HEIGHT, 3)
+        ),
+
+        # Max-pooling layer, using 2x2 pool size
+        tf.keras.layers.MaxPooling2D(pool_size=(2, 2)),
+
+        tf.keras.layers.Conv2D( 
+            64, (3, 3), activation="relu", input_shape=(IMG_WIDTH, IMG_HEIGHT, 3)
+        ),
+
+        # Max-pooling layer, using 2x2 pool size
+        tf.keras.layers.MaxPooling2D(pool_size=(2, 2)),
+
+        tf.keras.layers.Conv2D( 
+            128, (3, 3), activation="relu", input_shape=(IMG_WIDTH, IMG_HEIGHT, 3)
         ),
 
         # Max-pooling layer, using 2x2 pool size

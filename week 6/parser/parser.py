@@ -9,13 +9,14 @@ Det -> "a" | "an" | "his" | "my" | "the"
 N -> "armchair" | "companion" | "day" | "door" | "hand" | "he" | "himself"
 N -> "holmes" | "home" | "i" | "mess" | "paint" | "palm" | "pipe" | "she"
 N -> "smile" | "thursday" | "walk" | "we" | "word"
-P -> "at" | "before" | "in" | "of" | "on" | "to"
+P -> "at" | "before" | "in" | "of" | "on" | "to" | 
 V -> "arrived" | "came" | "chuckled" | "had" | "lit" | "said" | "sat"
 V -> "smiled" | "tell" | "were"
 """
 
 NONTERMINALS = """
-S -> N V
+S -> N V 
+S -> N V Det N
 """
 
 grammar = nltk.CFG.fromstring(NONTERMINALS + TERMINALS)
