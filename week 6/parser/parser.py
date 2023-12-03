@@ -21,6 +21,7 @@ S -> N V Det N P N
 S -> N V P Det Adj N Conj N V
 S -> Det N V Det Adj N
 S -> N V P N
+s -> N Adv V Det N Conj N V P Det N Adv
 """
 
 grammar = nltk.CFG.fromstring(NONTERMINALS + TERMINALS)
