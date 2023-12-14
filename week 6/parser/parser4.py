@@ -1,7 +1,6 @@
 import nltk
 import sys
 
-
 TERMINALS = """
 Adj -> "country" | "dreadful" | "enigmatical" | "little" | "moist" | "red"
 Adv -> "down" | "here" | "never"
@@ -10,22 +9,14 @@ Det -> "a" | "an" | "his" | "my" | "the"
 N -> "armchair" | "companion" | "day" | "door" | "hand" | "he" | "himself"
 N -> "holmes" | "home" | "i" | "mess" | "paint" | "palm" | "pipe" | "she"
 N -> "smile" | "thursday" | "walk" | "we" | "word"
-P -> "at" | "before" | "in" | "of" | "on" | "to" | 
+P -> "at" | "before" | "in" | "of" | "on" | "to"
 V -> "arrived" | "came" | "chuckled" | "had" | "lit" | "said" | "sat"
 V -> "smiled" | "tell" | "were"
 """
 
 NONTERMINALS = """
-S -> N V 
+S -> N V
 S -> N V Det N
-S -> N V Det N P N
-S -> N V P Det Adj N Conj N V
-S -> Det N V Det Adj N
-S -> N V P N
-s -> N Adv V Det N Conj N V P Det N Adv
-s -> N V Adv Conj V Det N
-s -> N V Det Adj N P N Conj V N P Det Adj N
-s -> N V Det Adj Adj Adj N P Det N P Det N
 """
 
 grammar = nltk.CFG.fromstring(NONTERMINALS + TERMINALS)
@@ -72,6 +63,7 @@ def preprocess(sentence):
     and removing any word that does not contain at least one alphabetic
     character.
     """
+    
     sentence = sentence.lower()
 
     words = nltk.word_tokenize(sentence)
@@ -83,7 +75,6 @@ def preprocess(sentence):
             valid_words.append(word)
     
     return valid_words
-        
 
 
 def np_chunk(tree):
